@@ -1,0 +1,133 @@
+#include "NUC1xx.h"
+#include "SYS.h"
+#include "GPIO.h"
+void ssd_config()
+{
+	
+		DrvGPIO_Open(E_GPE,0,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,1,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,2,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,3,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,4,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,5,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,6,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPE,7,E_IO_OUTPUT);
+	
+	
+	DrvGPIO_Open(E_GPC,4,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC,5,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC,6,E_IO_OUTPUT);
+	DrvGPIO_Open(E_GPC,7,E_IO_OUTPUT);
+  DrvGPIO_Open(E_GPB,15,E_IO_INPUT);
+
+	
+	
+}
+
+void ssd_display()
+{
+			DrvGPIO_SetBit(E_GPC,4);
+	DrvGPIO_SetBit(E_GPC,5);
+
+		DrvGPIO_SetBit(E_GPC,6);
+}
+
+	
+int main()
+{
+	UNLOCKREG();
+	DrvSYS_Open(50000000);
+	LOCKREG();
+	ssd_config();
+	ssd_display();
+
+	int hex [10]={0X82,0XEE,0X07,0X46,0X6A,0X52,0X12,0XE6,0X02,0X42};
+	
+	int num = 9845;
+	int n1= (num/1000);
+	int n2=(num/100)%10;
+	int n3=(num/10)%10;
+	int n4=(num%10);
+	
+	
+	
+
+	while(1)
+	{
+		if(DrvGPIO_GetBit(E_GPB,15)==1);
+		{
+			
+
+      DrvGPIO_SetBit(E_GPC,4);
+
+      GPIOE->DOUT=hex[++n4];
+      DrvSYS_Delay(100);
+       DrvGPIO_ClrBit(E_GPC,4);
+
+		}
+		
+		
+		
+		
+		
+		/*
+		GPIOE->DOUT=0X82;
+		DrvSYS_Delay(10000000);
+ GPIOE->DOUT=0XEE;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X07;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X46;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X6A;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X52;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X12;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0XE6;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X02;
+		DrvSYS_Delay(10000000);
+GPIOE->DOUT=0X42;
+		DrvSYS_Delay(10000000);
+*/
+
+
+
+
+DrvGPIO_SetBit(E_GPC,4);
+GPIOE->DOUT=hex[n4];
+DrvSYS_Delay(100);
+DrvGPIO_ClrBit(E_GPC,4);
+
+
+
+
+DrvGPIO_SetBit(E_GPC,5);
+GPIOE->DOUT=hex[n3];
+DrvSYS_Delay(100);
+DrvGPIO_ClrBit(E_GPC,5);
+
+
+
+
+DrvGPIO_SetBit(E_GPC,6);
+GPIOE->DOUT=hex[n2];
+DrvSYS_Delay(100);
+DrvGPIO_ClrBit(E_GPC,6);
+
+
+
+DrvGPIO_SetBit(E_GPC,7);
+GPIOE->DOUT=hex[n1];
+DrvSYS_Delay(100);
+DrvGPIO_ClrBit(E_GPC,7);
+
+		
+	}
+
+
+	
+	return 0;
+}

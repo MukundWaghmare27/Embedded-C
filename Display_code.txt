@@ -1,0 +1,95 @@
+#include "NUC1xx.h" 
+#include "SYS.h"
+#include "GPIO.h"
+
+void lcd_init(void);
+void lcd_cmd(char cmd);
+void lcd_data(char data);
+void lcd_print(char *str);
+	
+
+
+
+int main()
+{
+	UNLOCKREG();
+DrvSYS_Open(50000000);
+LOCKREG();
+
+DrvGPIO_Open(E_GPA,0,E_IO_OUTPUT);  //RS
+DrvGPIO_Open(E_GPA,1,E_IO_OUTPUT);   //RW
+DrvGPIO_Open(E_GPA,2,E_IO_OUTPUT);   // EN
+
+
+DrvGPIO_Open(E_GPE,0,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,1,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,2,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,3,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,4,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,5,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,6,E_IO_OUTPUT);
+DrvGPIO_Open(E_GPE,7,E_IO_OUTPUT);
+	
+
+	
+	lcd_init();
+//while(1)
+
+	
+	lcd_cmd(0X84);
+	lcd_print("SUJIT");
+	DrvSYS_Delay(100000);
+	
+	lcd_cmd(0XC4);
+	lcd_print("DIGHE");
+	DrvSYS_Delay(100000);
+	
+	lcd_cmd(0X98);
+	lcd_print("SPPU DOES");
+	DrvSYS_Delay(100000);
+	
+	lcd_cmd(0XD8);
+	lcd_print("8446566936");
+	DrvSYS_Delay(100000);
+	
+	return 0;
+ }
+
+void lcd_init(void)
+{
+	lcd_cmd(0X38);
+	lcd_cmd(0X06);
+	lcd_cmd(0X0E);
+	lcd_cmd(0X01);
+	lcd_cmd(0X80);
+}
+
+void lcd_cmd(char cmd)
+{
+	GPIOE->DOUT=cmd;
+	DrvGPIO_ClrBit(E_GPA,0);   // RS=0
+	DrvGPIO_ClrBit(E_GPA,1);    // RW=0
+	DrvGPIO_SetBit(E_GPA,2);    //EN=1
+	DrvSYS_Delay(1000);
+	DrvGPIO_ClrBit(E_GPA,2);   //EN = 0
+}
+
+
+void lcd_data(char data)
+{
+	GPIOE->DOUT=data;
+	DrvGPIO_SetBit(E_GPA,0);   // RS=1
+	DrvGPIO_ClrBit(E_GPA,1);   // RW=0
+	DrvGPIO_SetBit(E_GPA,2);    //EN=1
+	DrvSYS_Delay(1000);
+	DrvGPIO_ClrBit(E_GPA,2);   //EN = 0
+}
+	void lcd_print(char *str)
+	{
+		while(*str != '\0')
+		{
+			lcd_data(*str);
+			str++;
+		}
+	}
+	

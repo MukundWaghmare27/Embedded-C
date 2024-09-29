@@ -1,0 +1,80 @@
+
+#include <xc.h>
+#define _XTAL_FREQ 80000000
+void send(char data);
+char receive(void);
+void send_string(char *data);
+char state;
+
+void main(void)
+{
+    OSCCON=0x72;
+    TRISB=0;
+    TRISC6=0;
+    TRISC7=1;
+    TXSTAbits.SYNC=0;
+    TXSTAbits.BRGH=0;
+    BAUDCONbits.BRG16=0;
+    SPBRG=12;
+    SPBRGH=0;
+    RCSTAbits.SPEN=1;
+    TXSTAbits.TXEN=1;
+   
+    /*while(1)
+    {
+        send_string("hi");
+        __delay_ms(10);
+    }
+      */
+     
+    RCSTAbits.CREN=1;
+    while(1)
+    {
+        state=receive();
+        if(state=='1')
+        {
+            LATB=0x01;
+        }
+        else if(state=='2')
+        {
+            LATB=0x03;
+           
+        }
+        else if(state=='3')
+        {
+            LATB=0x07;
+           
+        }
+        else if(state=='4')
+        {
+            LATB=0x0F;
+        }
+    }
+}
+
+void send(char data)
+    {
+        while(PIR1bits.TXIF==0);
+        TXREG=data;
+    }  
+ void send_string(char *data)
+    {
+     while(*data!='\0')
+     {
+     send(*data);
+     data++;
+     }
+    }
+   
+ char receive(void)
+   {
+       while(PIR1bits.RCIF==0);
+           if(RCSTAbits.OERR==1)
+           {
+               RCSTAbits.CREN=0;
+               __delay_ms(1);
+               RCSTAbits.CREN=1;
+             
+           }
+       return RCREG;
+    }

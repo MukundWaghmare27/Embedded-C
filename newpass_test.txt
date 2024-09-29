@@ -1,0 +1,190 @@
+// PIC18F4520 Configuration Bit Settings
+
+// 'C' source line config statements
+
+// CONFIG1H
+#pragma config OSC = HSPLL      // Oscillator Selection bits (HS oscillator, PLL enabled (Clock Frequency = 4 x FOSC1))
+#pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
+#pragma config IESO = OFF       // Internal/External Oscillator Switchover bit (Oscillator Switchover mode disabled)
+
+// CONFIG2L
+#pragma config PWRT = OFF       // Power-up Timer Enable bit (PWRT disabled)
+#pragma config BOREN = SBORDIS  // Brown-out Reset Enable bits (Brown-out Reset enabled in hardware only (SBOREN is disabled))
+#pragma config BORV = 3         // Brown Out Reset Voltage bits (Minimum setting)
+
+// CONFIG2H
+#pragma config WDT = OFF        // Watchdog Timer Enable bit (WDT disabled (control is placed on the SWDTEN bit))
+#pragma config WDTPS = 32768    // Watchdog Timer Postscale Select bits (1:32768)
+
+// CONFIG3H
+#pragma config CCP2MX = PORTC   // CCP2 MUX bit (CCP2 input/output is multiplexed with RC1)
+#pragma config PBADEN = OFF     // PORTB A/D Enable bit (PORTB<4:0> pins are configured as digital I/O on Reset)
+#pragma config LPT1OSC = OFF    // Low-Power Timer1 Oscillator Enable bit (Timer1 configured for higher power operation)
+#pragma config MCLRE = OFF      // MCLR Pin Enable bit (RE3 input pin enabled; MCLR disabled)
+
+// CONFIG4L
+#pragma config STVREN = OFF     // Stack Full/Underflow Reset Enable bit (Stack full/underflow will not cause Reset)
+#pragma config LVP = OFF        // Single-Supply ICSP Enable bit (Single-Supply ICSP disabled)
+#pragma config XINST = OFF      // Extended Instruction Set Enable bit (Instruction set extension and Indexed Addressing mode disabled (Legacy mode))
+
+// CONFIG5L
+#pragma config CP0 = OFF        // Code Protection bit (Block 0 (000800-001FFFh) not code-protected)
+#pragma config CP1 = OFF        // Code Protection bit (Block 1 (002000-003FFFh) not code-protected)
+#pragma config CP2 = OFF        // Code Protection bit (Block 2 (004000-005FFFh) not code-protected)
+#pragma config CP3 = OFF        // Code Protection bit (Block 3 (006000-007FFFh) not code-protected)
+
+// CONFIG5H
+#pragma config CPB = OFF        // Boot Block Code Protection bit (Boot block (000000-0007FFh) not code-protected)
+#pragma config CPD = OFF        // Data EEPROM Code Protection bit (Data EEPROM not code-protected)
+
+
+#define _XTAL_FREQ 40000000
+#include <xc.h>
+
+void lcd_init(void);
+void lcd_data(char data);
+void lcd_cmd(char cmd);
+void lcd_prnt(char *str);
+int passcode[4]=0;
+int butpress=0;
+void main(void) {
+    TRISC=0x00;
+    TRISD=0x00;
+    TRISB=0x1E;
+    ADCON1=0x0f; //disable adc
+    INTCON2bits.RBPU=0; // pulling up these pins
+    lcd_init();
+//    lcd_prnt("Yee");
+    
+//    row one initiated
+    lcd_cmd(0x80);
+
+
+    LATBbits.LB6 = 1;
+    LATBbits.LB7 = 1;
+
+    LATBbits.LB5 = 0;
+        __delay_ms(10);
+    if(PORTBbits.RB1 == 0)
+    {
+      lcd_prnt("1");      butpress++;
+
+    }
+    
+     if(PORTBbits.RB2 == 0)
+    {
+      lcd_prnt("2");      butpress++;
+
+    } 
+    if(PORTBbits.RB3 == 0)
+    {
+      lcd_prnt("3");      butpress++;
+
+    } 
+    if(PORTBbits.RB4 == 0)
+    {
+      lcd_prnt("4");      butpress++;
+
+    }
+    LATBbits.LB5 = 1;
+//    row two initiated
+    LATBbits.LB6 = 0;
+        __delay_ms(10);
+
+      if(PORTBbits.RB1 == 0)
+    {
+      lcd_prnt("5");      butpress++;
+
+    }
+    
+     if(PORTBbits.RB2 == 0)
+    {
+      lcd_prnt("6");      butpress++;
+
+    } 
+    if(PORTBbits.RB3 == 0)
+    {
+      lcd_prnt("7");      butpress++;
+
+    } 
+    if(PORTBbits.RB4 == 0)
+    {
+      lcd_prnt("8");      butpress++;
+
+    }
+    LATBbits.LB6 = 1;
+//     initiated row 3
+    LATBbits.LB7 = 0;
+        __delay_ms(10);
+
+     if(PORTBbits.RB1 == 0)
+    {
+      lcd_prnt("9");      butpress++;
+
+    }
+    
+     if(PORTBbits.RB2 == 0)
+    {
+      lcd_prnt("A");      butpress++;
+
+    } 
+    if(PORTBbits.RB3 == 0)
+    {
+      lcd_prnt("B");      butpress++;
+
+    } 
+    if(PORTBbits.RB4 == 0)
+    {
+      lcd_prnt("C");
+      butpress++;
+    }
+    LATBbits.LB7 = 1;
+    __delay_ms(10);
+    if(butpress>=4)
+    {
+       butpress = 0; 
+    }
+    lcd_cmd(0xC0);
+    
+    lcd_cmd(x);
+}
+
+void lcd_init(void)
+{
+   lcd_cmd(0x38);
+   lcd_cmd(0x0C);
+   lcd_cmd(0x06);
+   lcd_cmd(0x01);
+   lcd_cmd(0x80);
+}
+
+void lcd_cmd(char cmd)
+{
+    LATD=cmd;
+    LATCbits.LC1 = 0;
+    LATCbits.LC0 = 0;
+    LATCbits.LC2 = 1;
+    __delay_ms(1);
+    LATCbits.LC2 = 0;  
+}
+
+void lcd_data(char data)
+{
+   LATD=data;
+   LATCbits.LC0 = 0;
+   LATCbits.LC1 = 1;
+   LATCbits.LC2 = 1;
+   __delay_ms(1);
+   LATCbits.LC2 = 0;
+}
+
+void lcd_prnt(char *str)
+{
+ 
+    while(*str != '\0')
+    {
+        lcd_data(*str);
+      str++;
+    }
+}
+
